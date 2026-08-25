@@ -36,12 +36,17 @@ dsh plugin --profile web add link:C://path//to//dsh-importer
 
 ## 数据文件
 
-（相对 DSH 启动目录，沿用旧动态插件命名以便无缝迁移）
+（`$DSH_HOME/dsh-importer/`，默认 `~/.dsh/dsh-importer/`；本机为 `H:\dsh-data\dsh-importer\`，沿用旧动态插件命名以便无缝迁移）
 
 - `dsweb-token.json` — 登录 token
 - `dsweb-config.json` — 开关 / 间隔 / 上次同步 / 初始化版本
 - `dsweb-index.json` — 会话索引（消息数、content_fetched 标记）
 - `dsweb-sessions-<id>.json` — 每个会话的完整内容
+
+> 历史说明：旧动态插件受 fs 沙箱限制把数据落在 DSH 程序目录
+> （`H:\DeepseekHarness0.6`）；固化后改为 node 原生 fs 直写
+> `$DSH_HOME/dsh-importer/`，与 dsh-pocket 等插件一致。升级后首次运行前
+> 若旧目录仍有数据，手动移入新目录即可。
 
 ## 开发
 
@@ -51,7 +56,7 @@ dsh plugin --profile web add link:C://path//to//dsh-importer
 node --check lib/index.js && node --check lib/client.js
 ```
 
-- Host half：`lib/index.js` — 网络层走 subprocess + curl（带浏览器头绕过风控），数据落盘用 fs 服务，暴露 `POST /plugins/dsh-importer/api`（body `{ action, args }`）与兼容书签的 `POST /api/dsweb/token`。
+- Host half：`lib/index.js` — 网络层走 subprocess + curl（带浏览器头绕过风控），数据落盘用 node 原生 fs/promises 直写 `$DSH_HOME/dsh-importer/`，暴露 `POST /plugins/dsh-importer/api`（body `{ action, args }`）与兼容书签的 `POST /api/dsweb/token`。
 - Client half：`lib/client.js` — 惰性 CJS client bundle，填充 `settings.section` slot，通过同源 fetch 调用节点端点。
 
 ## License
