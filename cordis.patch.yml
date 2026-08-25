@@ -1,0 +1,6 @@
+# dsh-importer bundle patch: inserts the plugin entry so the Loader mounts its
+# node half and the client-modules scan discovers the package's dsh.client
+# declaration for the browser half.
+- insert:
+    - id: dsh-importer
+      name: dsh-importer
